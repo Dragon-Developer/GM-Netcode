@@ -1,5 +1,8 @@
 This framework is designed to simplify the setup of a GameMaker server and client.  
+It uses [JSON-RPC](https://www.jsonrpc.org/specification) to invoke methods from another application.  
 Below are usage instructions for creating a server and a client:
+
+_Note: it is still in its early stages, there is still much to document and improve._
 
 ## Creating Server
 1. Define a GameServer constructor that inherits from TCPServer.
@@ -38,7 +41,7 @@ global.client = new GameClient("127.0.0.1", 3000);
 ```
 ## Notification Example
 Notifications are requests that don't expect a response, they don't have callback/error handling.
-1. Create an object called obj_ball with the following code in Draw Event:
+1. Create an object called `obj_ball` with the following code in Draw Event:
 ```gml
 draw_circle(x, y, 8, false);
 ```
