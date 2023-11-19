@@ -19,7 +19,7 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 	}
 	setEvent("connected", function() {
 		// Send request to set name
-		rpc.sendRequest("set_name", "Hazy", function(_result) { 
+		rpc.sendRequest("set_name", "Test", function(_result) { 
 			show_debug_message("Changed name!");
 		}, function(_error) {
 			show_debug_message($"Error {_error.code}: {_error.message}");	

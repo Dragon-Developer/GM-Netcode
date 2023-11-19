@@ -1,11 +1,11 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "TCPSocket",
+  "name": "WebSocket",
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
-    "name": "TCP",
-    "path": "folders/Scripts/Netcode/TCP.yy",
+    "name": "WebSocket",
+    "path": "folders/Scripts/Netcode/WebSocket.yy",
   },
 }

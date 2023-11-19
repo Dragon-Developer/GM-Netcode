@@ -3,6 +3,7 @@ function RPC(_socket) constructor {
 	self.handlers = {};
 	self.socket = _socket;
 	self.timeout = 5;
+	self.network = new Network();
 	static setTimeout = function(_timeout) {
 		self.timeout = _timeout;	
 	}
@@ -14,7 +15,7 @@ function RPC(_socket) constructor {
 	}
 	static sendJSON = function(_data, _socket) {
 		_data.jsonrpc = "2.0";
-		global.network.sendData(_data, _socket);
+		network.sendData(_data, _socket);
 	}
 	static sendRequest = function(_method, _params, _callback, _errback, _socket = socket, _timeout = timeout) {
 		var _id = generateID();
