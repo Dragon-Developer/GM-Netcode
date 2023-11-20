@@ -1,8 +1,22 @@
 This framework is designed to simplify the setup of a GameMaker server and client.  
 It uses [JSON-RPC](https://www.jsonrpc.org/specification) to invoke methods from another application.  
-Below are usage instructions for creating a server and a client:
 
 _Note: it is still in its early stages, there is still much to document and improve._
+
+Server classes:
+- TCPServer
+- TCPServerRAW
+- WebSocketServer ([bug](https://github.com/YoYoGames/GameMaker-Bugs/issues/2109))
+- WebSocketServerRAW
+
+Socket classes (client):
+- TCPSocket
+- TCPSocketRAW
+- WebSocket ([bug](https://github.com/YoYoGames/GameMaker-Bugs/issues/2109))
+- WebSocketRAW
+
+You must use the same socket type in server and client.  
+Below are usage instructions for creating a server and a client:  
 
 ## Creating Server
 1. Define a GameServer constructor that inherits from TCPServer.
