@@ -101,43 +101,43 @@ If you don't want to use RPC, override the "message" event on server/client.
 1. Disabling RPC on GameServer:
 ```gml
 function GameServer(_port) : TCPServer(_port) constructor {
-	// Disable RPC by setting the message event
-	setEvent("message", function(_message) {
-		var _data = _message.data;
-		var _socket = _message.socket;
-		// If the message type is "create_ball"
-		if (_data.type == "create_ball") {
-			// Store the data
-			data = _data;
-			// Send this data to all clients
-			clients.forEach(function(_client_socket) {
-				network.sendData(data, _client_socket);	
-			});
-		}
-	});
+    // Disable RPC by setting the message event
+    setEvent("message", function(_message) {
+        var _data = _message.data;
+        var _socket = _message.socket;
+        // If the message type is "create_ball"
+        if (_data.type == "create_ball") {
+            // Store the data
+            data = _data;
+            // Send this data to all clients
+            clients.forEach(function(_client_socket) {
+                network.sendData(data, _client_socket);	
+            });
+        }
+    });
 }
 ```
 2. Disable RPC on GameClient:
 ```gml
 function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
-	// Disable RPC by setting the message event
-	setEvent("message", function(_message) {
-		var _data = _message.data;
-		// If the message type is "create_ball"
-		if (_data.type == "create_ball") {
-			// Create the ball instance
-			instance_create_depth(_data.x, _data.y, 0, obj_ball);
-		}
-	});
-	static step = function() {
-		if (mouse_check_button_pressed(mb_left)) {
-			// Send message to create ball
-			network.sendData({
-				type: "create_ball",
-				x: mouse_x,
-				y: mouse_y
-			});
-		}
-	}
+    // Disable RPC by setting the message event
+    setEvent("message", function(_message) {
+        var _data = _message.data;
+        // If the message type is "create_ball"
+        if (_data.type == "create_ball") {
+            // Create the ball instance
+            instance_create_depth(_data.x, _data.y, 0, obj_ball);
+        }
+    });
+    static step = function() {
+        if (mouse_check_button_pressed(mb_left)) {
+            // Send message to create ball
+            network.sendData({
+                type: "create_ball",
+                x: mouse_x,
+                y: mouse_y
+            });
+        }
+    }
 }
 ```
