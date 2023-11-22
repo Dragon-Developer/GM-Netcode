@@ -5,9 +5,9 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	rpc.registerHandler("ping", function(_params, _socket) {
 		return _params;
 	});
-	rpc.registerHandler("create_ball", function(_params, _socket) {
-		ballPosition = _params;
-		clientManager.forEach(function(_client_socket, _client) {
+	rpc.registerHandler("create_ball", function(_position, _socket) {
+		ballPosition = _position;
+		clients.forEach(function(_client_socket) {
 			rpc.sendNotification("create_ball", ballPosition, _client_socket);
 		});
 	});
@@ -21,7 +21,7 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	});
 	rpc.registerHandler("get_name_list", function(_params, _socket) {
 		nameList = [];
-		clientManager.forEach(function(_client_socket, _client) {
+		clients.forEach(function(_client_socket, _client) {
 			array_push(nameList, _client.getName());
 		});
 		return string_join_ext(", ", nameList);	

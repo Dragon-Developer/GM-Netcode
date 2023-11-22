@@ -4,40 +4,41 @@ function Server(_type, _port, _max_clients) constructor {
 	self.port = _port;
 	self.maxClients = _max_clients;
 	self.clients = [];
-	self.clientManager = new Manager();
+	self.clients = new Manager();
 	self.serverInstance = undefined;
+	self.network = new Network();
+	self.network.setType(_type);
 	self.rpc = new RPC();
-	self.rpc.network.setType(_type);
+	self.rpc.setNetwork(network);
 	self.events = {};
 	static createServerInstance = function() {
 		serverInstance = instance_create_depth(0, 0, 0, obj_server);
 		serverInstance.server = self;
 	}
 	createServer = function() {
-		show_message("SERVER NON RAW");
 		return network_create_server(type, port, maxClients);
 	}
 	static createClient = function() {
 		return {};
 	}
 	static addClient = function(_socket) {
-		clientManager.setElement(_socket, createClient());
+		clients.setElement(_socket, createClient());
 		triggerEvent("connected", _socket);
 	}
 	static hasClient = function(_socket) {
-		return clientManager.hasElement(_socket);	
+		return clients.hasElement(_socket);	
 	}
 	static getClient = function(_socket) {
-		return clientManager.getElement(_socket);	
+		return clients.getElement(_socket);	
 	}
 	static removeClient = function(_socket) {
 		triggerEvent("disconnected", _socket);
-		clientManager.removeElement(_socket);
+		clients.removeElement(_socket);
 	}
 	static destroy = function() {
 		network_destroy(socket);
 		instance_destroy(serverInstance);
-		clientManager.clearAll();
+		clients.clearAll();
 	}
 	static setEvent = function(_event, _method) {
 		events[$ _event] = _method;
@@ -49,14 +50,17 @@ function Server(_type, _port, _max_clients) constructor {
 	}
 	static start = function() {
 		socket = createServer();
+		network.setDefaultSocket(socket);
 		createServerInstance();
+		setEvent("message", function(_msg) {
+			rpc.handleMessage(_msg.data, _msg.socket);
+		});
 	}
 	static step = function() {}
 }
 function ServerRAW(_type, _port, _max_clients) : Server(_type, _port, _max_clients) constructor {
-	self.rpc.network.setRAW(true);
+	self.network.setRAW(true);
 	createServer = function() {
-		show_message("SOCKET RAW");
 		return network_create_server_raw(type, port, maxClients);
 	}
 }

@@ -18,9 +18,12 @@ else if (_type == network_type_data) {
 	try {
 		var _json = buffer_read(_buffer, buffer_text);
 		var _data = json_parse(_json);
-		client.rpc.handleMessage(_data, _id);
+		client.triggerEvent("message", {
+			data: _data,
+			socket: _id
+		});
 	} catch (_error) {
-		show_debug_message(_error.message);
+		client.triggerEvent("error", _error);
 	}
 }
 

@@ -6,9 +6,9 @@ function Socket(_type, _ip, _port) constructor {
 	self.port = _port;
 	self.clientInstance = undefined;
 	self.rpc = undefined;
+	self.network = new Network();
 	self.connect = function() {
 		network_connect_async(socket, ip, port);	
-		show_message("SOCKET NON RAW");
 	}
 	static setType = function(_type) {
 		type = _type;	
@@ -16,18 +16,23 @@ function Socket(_type, _ip, _port) constructor {
 	static setEvent = function(_event, _method) {
 		events[$ _event] = _method;
 	}
-	static triggerEvent = function(_event) {
+	static triggerEvent = function(_event, _params) {
 		if (struct_exists(events, _event)) {
-			events[$ _event]();	
+			events[$ _event](_params);	
 		}
 	}
 	static start = function() {
 		socket = network_create_socket(type);
+		network.setDefaultSocket(socket);
 		rpc = new RPC(socket);
-		rpc.network.setType(type);
+		rpc.setNetwork(network);
+		network.setType(type);
 		connect();
 		clientInstance = instance_create_depth(0, 0, 0, obj_client);
 		clientInstance.client = self;
+		setEvent("message", function(_msg) {
+			rpc.handleMessage(_msg.data, _msg.socket);
+		});
 	}
 	static destroy = function() {
 		network_destroy(socket);
@@ -37,8 +42,7 @@ function Socket(_type, _ip, _port) constructor {
 }
 function SocketRAW(_type, _ip, _port) : Socket(_type, _ip, _port) constructor {
 	self.connect = function() {
-		self.rpc.network.setRAW(true);
+		self.network.setRAW(true);
 		network_connect_raw_async(socket, ip, port);	
-		show_message("SOCKET RAW");
 	}
 }

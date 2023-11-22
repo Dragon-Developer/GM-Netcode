@@ -3,7 +3,10 @@ function RPC(_socket) constructor {
 	self.handlers = {};
 	self.socket = _socket;
 	self.timeout = 5;
-	self.network = new Network();
+	self.network = undefined;
+	static setNetwork = function(_network) {
+		self.network = _network;	
+	}
 	static setTimeout = function(_timeout) {
 		self.timeout = _timeout;	
 	}
