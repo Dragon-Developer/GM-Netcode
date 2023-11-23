@@ -63,11 +63,10 @@ draw_circle(x, y, 8, false);
 2. Define the following handler in the GameClient constructor:
 ```gml
 function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
-    // [...]
+    // Client received notification to create ball
     rpc.registerHandler("create_ball", function(_pos) {
-        // Client received notification to create ball, then let's create the ball instance
+        // Create the ball instance
         instance_create_depth(_pos.x, _pos.y, 0, obj_ball);
-        // This handler doesn't have a return value, because it's a notification
     });
     static step = function() {
         if (mouse_check_button_pressed(mb_left)) {
@@ -83,14 +82,10 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 3. Define the following handler in the GameServer constructor:
 ```gml
 function GameServer(_port) : TCPServer(_port) constructor {
-    // [...]
+    // Server received notification to create ball
     rpc.registerHandler("create_ball", function(_pos, _socket) {
-        // Server received notification to create ball, then store the ball position
-        ballPosition = _pos;
         // Send "create_ball" notification to all clients
-        clients.forEach(function(_client_socket, _client) {
-            rpc.sendNotification("create_ball", ballPosition, _client_socket);
-        });
+        rpc.sendNotification("create_ball", _pos, sockets);
     });
 }
 ```
@@ -107,12 +102,8 @@ function GameServer(_port) : TCPServer(_port) constructor {
         var _socket = _message.socket;
         // If the message type is "create_ball"
         if (_data.type == "create_ball") {
-            // Store the data
-            data = _data;
             // Send this data to all clients
-            clients.forEach(function(_client_socket) {
-                network.sendData(data, _client_socket);	
-            });
+            network.sendData(_data, sockets);
         }
     });
 }
