@@ -6,6 +6,9 @@ function Manager() constructor {
 	static getCount = function() {
 		return struct_names_count(elements);	
 	}
+	static getKeys = function() {
+		return struct_get_names(elements);	
+	}
 	static getElement = function(_key) {
 		if (struct_exists(elements, _key)) {
 			return elements[$ _key];	

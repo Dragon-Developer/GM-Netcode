@@ -7,9 +7,7 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	});
 	rpc.registerHandler("create_ball", function(_position, _socket) {
 		ballPosition = _position;
-		clients.forEach(function(_client_socket) {
-			rpc.sendNotification("create_ball", ballPosition, _client_socket);
-		});
+		rpc.sendNotification("create_ball", ballPosition, sockets);
 	});
 	rpc.registerHandler("set_name", function(_params, _socket) {
 		if (string_length(_params) > 10) {

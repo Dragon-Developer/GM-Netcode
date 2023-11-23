@@ -3,7 +3,7 @@ function Server(_type, _port, _max_clients) constructor {
 	self.type = _type;
 	self.port = _port;
 	self.maxClients = _max_clients;
-	self.clients = [];
+	self.sockets = [];
 	self.clients = new Manager();
 	self.serverInstance = undefined;
 	self.network = new Network();
@@ -23,6 +23,7 @@ function Server(_type, _port, _max_clients) constructor {
 	}
 	static addClient = function(_socket) {
 		clients.setElement(_socket, createClient());
+		array_push(sockets, _socket);
 		triggerEvent("connected", _socket);
 	}
 	static hasClient = function(_socket) {
@@ -34,11 +35,15 @@ function Server(_type, _port, _max_clients) constructor {
 	static removeClient = function(_socket) {
 		triggerEvent("disconnected", _socket);
 		clients.removeElement(_socket);
+		var _index = array_get_index(sockets, _socket);
+		if (_index == -1) return;
+		array_delete(sockets, _index, 1);
 	}
 	static destroy = function() {
 		network_destroy(socket);
 		instance_destroy(serverInstance);
 		clients.clearAll();
+		sockets = [];
 	}
 	static setEvent = function(_event, _method) {
 		events[$ _event] = _method;
