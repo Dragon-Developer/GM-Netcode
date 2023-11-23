@@ -6,6 +6,11 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	rpc.registerHandler("ping", function(_params, _socket) {
 		return _params;
 	});
+	rpc.registerHandler("sum", function(_params, _socket) {
+		var _sum = _params[0] + _params[1];
+		if (_sum > 10) throw "Sum error";
+		return _sum;
+	});
 	rpc.registerHandler("create_ball", function(_position, _socket) {
 		ballPosition = _position;
 		rpc.sendNotification("create_ball", ballPosition, sockets);

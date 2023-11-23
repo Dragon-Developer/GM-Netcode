@@ -28,18 +28,18 @@ function RPC(_socket) constructor {
 	///
 	/// @param {String} method - Name of the method to be invoked.
 	/// @param {Struct|Array} params - Parameters to be used in the request.
-	/// @param {Function} callback - Function to execute when the result is received successfully.
-	/// @param {Function} errback - Function to execute when an error occurs.
 	/// @param {Function} socket - Socket to which the request will be sent.
 	/// @param {Real} timeout - Time, in seconds, to wait for the request result before timing out.
-	static sendRequest = function(_method, _params, _callback, _errback, _socket = socket, _timeout = timeout) {
+	static sendRequest = function(_method, _params, _socket = socket, _timeout = timeout) {
 		var _id = generateID();
 		sendJSON({
 			"method": _method,
 			"params": _params,
 			"id": _id
 		}, _socket);
-		requests.setElement(_id, new RPCRequest(_id, _callback, _errback, _timeout, self));
+		var _request = new RPCRequest(_id, _timeout, self);
+		requests.setElement(_id, _request);
+		return _request;
 	}
 	static sendNotification = function(_method, _params, _socket = socket) {
 		sendJSON({
@@ -109,10 +109,7 @@ function RPC(_socket) constructor {
 		var _id = _data.id;
 		if (requests.hasElement(_id)) {
 			var _request = requests.getElement(_id);
-			var _call = _request.callback;
-			if (is_method(_call)) {
-				_call(_data.result);
-			}
+			var _callback_result = _request.runCallback(_data.result);
 			_request.cancel();
 			requests.removeElement(_id);
 		} else {
@@ -126,10 +123,7 @@ function RPC(_socket) constructor {
 		var _id = _data.id;
 		if (requests.hasElement(_id)) {
 			var _request = requests.getElement(_id);
-			var _call = _request.errback;
-			if (is_method(_call)) {
-				_call(_error);
-			}
+			_request.runErrback(_error);
 			_request.cancel();
 			requests.removeElement(_id);
 		}
@@ -143,22 +137,59 @@ function RPC(_socket) constructor {
 		return increment;
 	}
 }
-function RPCRequest(_id, _callback, _errback, _timeout, _parent) constructor {
+function RPCRequest(_id, _timeout, _parent) constructor {
 	self.requestID = _id;
 	self.parent = _parent;
-	self.callback = _callback;
-	self.errback = _errback;
+	self.callbacks = [];
+	self.errback = undefined;
+	self.finallyMethod = undefined;
+	static onCallback = function(_callback) {
+		array_push(self.callbacks, _callback);
+		return self;
+	}
+	static onError = function(_errback) {
+		self.errback = _errback;
+		return self;
+	}
+	static onFinally = function(_finally) {
+		self.finallyMethod = _finally;
+		return self;
+	}
+	static runCallback = function(_params) {
+		if (array_length(self.callbacks) > 0) {
+			var _callback = self.callbacks[0];
+			if (is_method(_callback)) {
+				var _callback_result = _callback(_params);
+				if (is_struct(_callback_result) && is_instanceof(_callback_result, RPCRequest)) {
+					array_delete(callbacks, 0, 1);
+					_callback_result.callbacks = callbacks;
+					_callback_result.onError(errback);
+					_callback_result.onFinally(finallyMethod);
+					return;
+				}
+			}
+		}
+		runFinally();	
+	}
+	static runErrback = function(_error) {
+		if (is_method(self.errback)) {
+			self.errback(_error);
+		}
+		self.runFinally();	
+	}
+	static runFinally = function() {
+		if (!is_method(finallyMethod)) return;
+		self.finallyMethod();
+	}
 	self.call = call_later(_timeout, time_source_units_seconds, function() {
 		var _requests = parent.requests;
 		if (!_requests.hasElement(requestID)) return;
-		var _call = _requests.getElement(requestID).errback;
+		var _request = _requests.getElement(requestID);
 		var _error = {
 			code: -32603,
 			message: "Timeout error"
 		};
-		if (is_method(_call)) {
-			_call(_error);
-		}
+		_request.runErrback(_error);
 		_requests.removeElement(requestID);
 	});
 	static cancel = function() {
