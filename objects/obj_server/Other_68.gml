@@ -17,7 +17,7 @@ if (_id == server.socket) {
 else if (_type == network_type_data && server.hasClient(_id)) {
 	var _buffer = async_load[? "buffer"];
 	try {
-		var _json = buffer_read(_buffer, buffer_text);
+		var _json = server.network.readBufferText(_buffer);
 		var _data = json_parse(_json);
 		server.triggerEvent("message", {
 			data: _data,

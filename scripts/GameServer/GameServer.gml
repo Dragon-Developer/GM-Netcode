@@ -1,4 +1,5 @@
 function GameServer(_port) : TCPServer(_port) constructor {
+	network.setCompress(true);
 	static createClient = function() {
 		return new Client();	
 	};

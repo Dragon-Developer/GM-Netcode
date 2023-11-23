@@ -20,6 +20,18 @@ function RPC(_socket) constructor {
 		_data.jsonrpc = "2.0";
 		network.sendData(_data, _socket);
 	}
+	/// @function sendRequest()
+	///
+	/// @description
+	/// Function to send requests by invoking the specified method with the given parameters
+	/// over the provided socket. Allows handling both successful results and errors through callbacks.
+	///
+	/// @param {String} method - Name of the method to be invoked.
+	/// @param {Struct|Array} params - Parameters to be used in the request.
+	/// @param {Function} callback - Function to execute when the result is received successfully.
+	/// @param {Function} errback - Function to execute when an error occurs.
+	/// @param {Function} socket - Socket to which the request will be sent.
+	/// @param {Real} timeout - Time, in seconds, to wait for the request result before timing out.
 	static sendRequest = function(_method, _params, _callback, _errback, _socket = socket, _timeout = timeout) {
 		var _id = generateID();
 		sendJSON({

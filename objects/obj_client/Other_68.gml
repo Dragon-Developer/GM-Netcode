@@ -16,7 +16,7 @@ if (_type == network_type_non_blocking_connect) {
 else if (_type == network_type_data) {
 	var _buffer = async_load[? "buffer"];
 	try {
-		var _json = buffer_read(_buffer, buffer_text);
+		var _json = client.network.readBufferText(_buffer);
 		var _data = json_parse(_json);
 		client.triggerEvent("message", {
 			data: _data,

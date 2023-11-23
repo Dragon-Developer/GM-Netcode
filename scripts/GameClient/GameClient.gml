@@ -1,4 +1,5 @@
 function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
+	network.setCompress(true);
 	self.ping = 0;
 	rpc.registerHandler("create_ball", function(_pos) {
 		var _inst = instance_create_depth(_pos.x, _pos.y, 0, obj_ball);
