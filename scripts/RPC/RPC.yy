@@ -5,7 +5,7 @@
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
-    "name": "Classes",
-    "path": "folders/Scripts/Netcode/Classes.yy",
+    "name": "RPC",
+    "path": "folders/Scripts/Netcode/RPC.yy",
   },
 }

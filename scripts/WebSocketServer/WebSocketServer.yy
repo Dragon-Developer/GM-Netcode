@@ -6,6 +6,6 @@
   "isDnD": false,
   "parent": {
     "name": "WebSocket",
-    "path": "folders/Scripts/Netcode/WebSocket.yy",
+    "path": "folders/Scripts/Netcode/Protocol/WebSocket.yy",
   },
 }

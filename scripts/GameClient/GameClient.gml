@@ -35,24 +35,45 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 			.onCallback(function(_result) {
 				show_debug_message(_result);	
 			});
-		// Example with chaining callbacks
-		rpc.sendRequest("sum", [1, 2])
+		// Example with callback chain
+		rpc.sendRequest("sum", [1, 5])
 			.onCallback(function(_result) {
-				return rpc.sendRequest("sum", [_result, 3])	
+				// Result is sum(1, 5) = 6, then request sum(6, 15)
+				return rpc.sendRequest("sum", [_result, 15])	
 			})
 			.onCallback(function(_result) {
+				// This callback isn't executed because the result was higher than 10 (error)
 				return rpc.sendRequest("sum", [_result, 4])	
 			})
 			.onCallback(function(_result) {
-				show_debug_message(_result); // 1 + 2 + 3 + 4 = 10
+				// This callback isn't executed because the previous one wasn't executed
+				show_debug_message(_result);
 			})
 			.onError(function(_error) {
+				// This is executed because sum(6, 16) resulted in an error
 				show_debug_message(_error.message);
+				return rpc.sendRequest("sum", [1, 2]);
+			})
+			.onCallback(function(_result) {
+				// Result is sum(1, 2) = 3, then request sum(3, 3)
+				return rpc.sendRequest("sum", [_result, 3])	
+			})
+			.onCallback(function(_result) {
+				// Result is sum(3, 3) = 6, then request sum(6, 4)
+				return rpc.sendRequest("sum", [_result, 5])	
+			})
+			.onCallback(function(_result) {
+				// Result is 10
+				show_debug_message(_result);
+			})
+			.onFinally(function() {
+				// Always execute this
+				show_debug_message("Finally");
 			});
 		sendPing();
 	});
 	static step = function() {
-		if (mouse_check_button_pressed(mb_left)) {
+		if (mouse_check_button(mb_left)) {
 			// Send notification to create ball
 			rpc.sendNotification("create_ball", {
 				x: mouse_x,

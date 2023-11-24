@@ -6,6 +6,6 @@
   "isDnD": false,
   "parent": {
     "name": "TCP",
-    "path": "folders/Scripts/Netcode/TCP.yy",
+    "path": "folders/Scripts/Netcode/Protocol/TCP.yy",
   },
 }
