@@ -39,14 +39,16 @@ global.server = new GameServer(3000);
 function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
     setEvent("connected", function() {
         // Send ping after connection is established
-        rpc.sendRequest("ping", current_time, function(_previous_time) {
-            // Show ping
-            var _ping = current_time - _previous_time;
-            show_debug_message($"{_ping} ms");
-        }, function(_error) {
-            // Show error message
-            show_debug_message($"Error {_error.code}: {_error.message}");    
-        });    
+        rpc.sendRequest("ping", current_time)
+            .onCallback(function(_previous_time) {
+                // Show ping
+                var _ping = current_time - _previous_time;
+                show_debug_message($"{_ping} ms");
+            })
+            .onError(function(_error) {
+                // Show error message
+                show_debug_message($"Error {_error.code}: {_error.message}");    
+            });    
     });
 }
 ```

@@ -21,7 +21,6 @@ function RPC(_socket) constructor {
 		network.sendData(_data, _socket);
 	}
 	/// @function sendRequest()
-	///
 	/// @description
 	/// Function to send requests by invoking the specified method with the given parameters
 	/// over the provided socket. Allows handling both successful results and errors through callbacks.
@@ -41,12 +40,27 @@ function RPC(_socket) constructor {
 		requests.setElement(_id, _request);
 		return _request;
 	}
+	/// @function sendNotification()
+	/// @description
+	/// Sends a notification with the specified method and parameters over the given socket.
+	///
+	/// @param {String} method - Name of the method to be invoked.
+	/// @param {Struct|Array} params - Parameters to be used in the notification.
+	/// @param {Function} socket - Socket to which the notification will be sent.
 	static sendNotification = function(_method, _params, _socket = socket) {
 		sendJSON({
 			"method": _method,
 			"params": _params
 		}, _socket);
 	}
+	/// @function sendError()
+	/// @description
+	/// Sends an error with the specified code, message, and ID over the given socket.
+	///
+	/// @param {Real} code - Error code.
+	/// @param {string} message - Error message.
+	/// @param {Real} id - ID associated with the error.
+	/// @param {Function} socket - Socket to which the error will be sent.
 	static sendError = function(_code, _message, _id, _socket) {
 		sendJSON({
 			"error": {
@@ -128,6 +142,13 @@ function RPC(_socket) constructor {
 			requests.removeElement(_id);
 		}
 	}
+	/// @function registerHandler()
+	/// @description
+	/// Registers a Remote Procedure Call (RPC) handler with the specified name and method.
+	/// This function allows associating a method with a unique name for later invocation.
+	///
+	/// @param {String} name - The name associated with the RPC handler.
+	/// @param {Function} method - The method to be registered as the RPC handler.
 	static registerHandler = function(_name, _method) {
 		handlers[$ _name] = _method;
 	}
