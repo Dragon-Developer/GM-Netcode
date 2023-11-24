@@ -58,7 +58,7 @@ function RPC(_socket) constructor {
 	/// Sends an error with the specified code, message, and ID over the given socket.
 	///
 	/// @param {Real} code - Error code.
-	/// @param {string} message - Error message.
+	/// @param {String} message - Error message.
 	/// @param {Real} id - ID associated with the error.
 	/// @param {Function} socket - Socket to which the error will be sent.
 	static sendError = function(_code, _message, _id, _socket) {
@@ -144,11 +144,10 @@ function RPC(_socket) constructor {
 	}
 	/// @function registerHandler()
 	/// @description
-	/// Registers a Remote Procedure Call (RPC) handler with the specified name and method.
 	/// This function allows associating a method with a unique name for later invocation.
 	///
-	/// @param {String} name - The name associated with the RPC handler.
-	/// @param {Function} method - The method to be registered as the RPC handler.
+	/// @param {String} name - Name associated with the RPC handler.
+	/// @param {Function} method - Method to be registered as the RPC handler.
 	static registerHandler = function(_name, _method) {
 		handlers[$ _name] = _method;
 	}
