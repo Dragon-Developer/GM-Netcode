@@ -1,1 +1,1 @@
-server.step();
+server.triggerEvent("step");

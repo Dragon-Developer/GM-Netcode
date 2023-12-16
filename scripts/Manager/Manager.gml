@@ -21,7 +21,7 @@ function Manager() constructor {
 	static removeElement = function(_key) {
 		struct_remove(elements, _key);	
 	}
-	static clearAll = function(_key) {
+	static clearAll = function() {
 		elements = {};	
 	}
 	static forEach = function(_method) {

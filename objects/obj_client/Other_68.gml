@@ -7,6 +7,7 @@ if (_id != client.socket) return;
 if (_type == network_type_non_blocking_connect) {
 	var _succeded = async_load[? "succeeded"];
 	if (_succeded) {
+		client.connected = true;
 		client.triggerEvent("connected");
 	} else {
 		client.triggerEvent("error");

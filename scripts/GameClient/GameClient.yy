@@ -5,7 +5,7 @@
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
-    "name": "Example",
-    "path": "folders/Scripts/Example.yy",
+    "name": "Netcode Example",
+    "path": "folders/Scripts/Netcode Example.yy",
   },
 }

@@ -1,8 +1,52 @@
 function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
-	network.setCompress(true);
-	self.ping = 0;
-	rpc.registerHandler("create_ball", function(_pos) {
-		var _inst = instance_create_depth(_pos.x, _pos.y, 0, obj_ball);
+	ping = 0;
+	started = false;
+	playerInstances = new Manager();
+	pubsub = new PubSub();
+	netSync = new NetworkSync(pubsub);
+	spawner = new NetworkSpawner();
+	spawner.addObject("obj_shot");
+	playerID = -1;
+	maxDelay = 1;
+	setEvent("error", function(err) {
+		show_debug_message(err);
+	});
+	pubsub.createTopic("player_state").subscribe(0, function(_id, _message) {
+		if (!started) return;
+		var _player_id = _message.id;
+		var _state = _message.state;
+		var _player_inst = playerInstances.getElement(_player_id);
+		if (is_undefined(_player_inst) || !instance_exists(_player_inst)) {		
+			_player_inst = instance_create_depth(0, 0, 0, obj_player);
+			playerInstances.setElement(_player_id, _player_inst);		
+		}
+		_player_inst.net.applyState(_state);
+	});
+	pubsub.createTopic("instance_state").subscribe(0, function(_id, _message) {
+		if (!started) return;
+		var _state = _message.state;
+		var _object_name = _message.object;
+		var _object = spawner.getObject(_object_name);
+		var _inst = spawner.createInstance(_object);
+		_inst.net.applyState(_state);
+	});
+	pubsub.createTopic("player_left").subscribe(0, function(_id, _message) {
+		if (!started) return;
+		var _player_id = _message.id;
+		if (_player_id == playerID) return;
+		if (playerInstances.hasElement(_player_id)) {
+			var _inst = playerInstances.getElement(_player_id);
+			playerInstances.removeElement(_player_id);
+			instance_destroy(_inst);
+		}
+	});
+	rpc.registerHandler("room_send", function(_params) {
+		var _type = _params.type;
+		if (_type == "frame_advance") {
+			netSync.frameAdvance(_params.data.id);	
+			return;
+		} 
+		netSync.addData(_params);
 	});
 	sendPing = function() {
 		// Wait 1 second to send ping
@@ -11,7 +55,7 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 				.onCallback(function(_result) {
 					var _ping = current_time - _result;
 					ping = _ping;
-					show_debug_message($"{_ping} ms");
+					netSync.addPing(ping);
 				})
 				.onError(function(_error) {
 					show_debug_message($"Error {_error.code}: {_error.message}");	
@@ -22,63 +66,47 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 		});
 	}
 	setEvent("connected", function() {
-		// Send request to set name
-		rpc.sendRequest("set_name", "Test")
-			.onCallback(function(_result) { 
-				show_debug_message("Changed name!");
-			})
-			.onError(function(_error) {
-				show_debug_message($"Error {_error.code}: {_error.message}");	
-			});
-		// Send request to get name list
-		rpc.sendRequest("get_name_list", [])
-			.onCallback(function(_result) {
-				show_debug_message(_result);	
-			});
-		// Example with callback chain
-		rpc.sendRequest("sum", [1, 5])
-			.onCallback(function(_result) {
-				// Result is sum(1, 5) = 6, then request sum(6, 15)
-				return rpc.sendRequest("sum", [_result, 15])	
-			})
-			.onCallback(function(_result) {
-				// This callback isn't executed because the result was higher than 10 (error)
-				return rpc.sendRequest("sum", [_result, 4])	
-			})
-			.onCallback(function(_result) {
-				// This callback isn't executed because the previous one wasn't executed
-				show_debug_message(_result);
-			})
-			.onError(function(_error) {
-				// This is executed because sum(6, 16) resulted in an error
-				show_debug_message(_error.message);
-				return rpc.sendRequest("sum", [1, 2]);
-			})
-			.onCallback(function(_result) {
-				// Result is sum(1, 2) = 3, then request sum(3, 3)
-				return rpc.sendRequest("sum", [_result, 3])	
-			})
-			.onCallback(function(_result) {
-				// Result is sum(3, 3) = 6, then request sum(6, 4)
-				return rpc.sendRequest("sum", [_result, 5])	
-			})
-			.onCallback(function(_result) {
-				// Result is 10
-				show_debug_message(_result);
-			})
-			.onFinally(function() {
-				// Always execute this
-				show_debug_message("Finally");
-			});
 		sendPing();
 	});
-	static step = function() {
-		if (mouse_check_button(mb_left)) {
-			// Send notification to create ball
-			rpc.sendNotification("create_ball", {
-				x: mouse_x,
-				y: mouse_y
-			});
+	setEvent("step", function() {
+		if (!connected) return;
+		netSync.step();
+		if (keyboard_check_pressed(vk_enter)) {		
+			rpc.sendRequest("room_join", 1)
+				.onCallback(function(_result) {
+					if (started) return;
+					started = true;
+					playerID = _result.id;
+					playerPos = _result.pos;
+					change_room(rm_game, function() {
+						player = instance_create_depth(playerPos.x, playerPos.y, 0, obj_player);
+						player.initMe(true);
+						playerInstances.setElement(playerID, player);
+						show_debug_message("Joined room");		
+					});
+				})
+				.onError(function(_error) {
+					show_debug_message(_error.message);	
+				});
 		}
-	}
+		else if (keyboard_check_pressed(vk_space)) {		
+			rpc.sendRequest("room_leave", [])
+				.onCallback(function() {
+					started = false;
+					playerInstances.forEach(function(_id, _inst) {
+						instance_destroy(_inst);
+					});
+					playerInstances.clearAll();
+					room_goto(rm_lobby);
+					show_debug_message("Left room");	
+				})
+				.onError(function(_error) {
+					show_debug_message(_error.message)	
+				});
+		}
+	});
+	setEvent("step_end", function() { 
+		if (!connected) return;
+		rpc.sendNotification("frame_advance");
+	});
 }

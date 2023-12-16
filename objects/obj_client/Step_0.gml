@@ -1,1 +1,1 @@
-client.step();
+client.triggerEvent("step");

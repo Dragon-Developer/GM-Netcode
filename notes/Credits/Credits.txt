@@ -1,0 +1,3 @@
+Sprites:
+https://opengameart.org/content/platform-shmup-hero-sir-blastalot
+https://opengameart.org/content/magic-cliffs-environment

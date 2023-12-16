@@ -15,10 +15,10 @@ function Server(_type, _port, _max_clients) constructor {
 		serverInstance = instance_create_depth(0, 0, 0, obj_server);
 		serverInstance.server = self;
 	}
-	createServer = function() {
+	self.createServer = function() {
 		return network_create_server(type, port, maxClients);
 	}
-	static createClient = function() {
+	self.createClient = function() {
 		return {};
 	}
 	static addClient = function(_socket) {

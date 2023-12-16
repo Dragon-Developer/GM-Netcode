@@ -30,6 +30,7 @@ function Network() constructor {
 			return buffer_read(_buffer, buffer_text);
 		}
 		var _decompressed = buffer_decompress(_buffer);	
+		buffer_seek(_decompressed, buffer_seek_start, 0);
 		var _text = buffer_read(_decompressed, buffer_text);
 		buffer_delete(_decompressed);
 		return _text;

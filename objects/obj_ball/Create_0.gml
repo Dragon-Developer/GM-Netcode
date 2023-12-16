@@ -1,1 +1,0 @@
-color = c_white;

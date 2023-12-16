@@ -1,4 +1,5 @@
 function Socket(_type, _ip, _port) constructor {
+	self.connected = false;
 	self.events = {};
 	self.socket = -1;
 	self.type = _type;
@@ -39,6 +40,7 @@ function Socket(_type, _ip, _port) constructor {
 		instance_destroy(clientInstance);
 	}
 	static step = function() {	}
+	static endStep = function() {  }
 }
 function SocketRAW(_type, _ip, _port) : Socket(_type, _ip, _port) constructor {
 	self.connect = function() {
