@@ -2,28 +2,10 @@ function NetworkSync(_pubsub) constructor {
 	self.owner = other;
 	self.framesBySocket = {};
 	self.pubsub = _pubsub;
-	self.maxDelay = 20;
-	self.pings = [];
-	self.maxDelayUpdateRate = 2;
-	static addPing = function(_ping) {
-		array_push(self.pings, _ping);
-		var _length = array_length(self.pings);
-		if (_length < self.maxDelayUpdateRate) return;
-		var _sum = array_reduce(self.pings, function(_prev, _current) {
-			return _prev + _current;
-		});
-		self.pings = [];
-		var _average = _sum / _length;
-		var _fps = game_get_speed(gamespeed_fps);
-		var _new_delay = ceil((_average / 1000) * _fps);
-		self.setMaxDelay(_new_delay);
-	}
-	static setMaxDelay = function(_delay) {
-		self.maxDelay = _delay; 
-		return self;	
-	}
-	static getMaxDelay = function() {
-		return self.maxDelay;	
+	static addPing = function(_socket, _ping) {
+		self.addSocket(_socket);
+		var _frames = self.framesBySocket[$ _socket];
+		_frames.addPing(_ping);
 	}
 	static processData = function(_params) {
 		var _type = _params.type;
@@ -58,10 +40,26 @@ function NetworkSync(_pubsub) constructor {
 function NetworkGameFrameCollection() constructor {
 	self.owner = other;
 	self.frames = [];
+	self.maxDelay = 10;
+	self.pings = [];
+	self.maxDelayUpdateRate = 3;
+	static addPing = function(_ping) {
+		array_push(self.pings, _ping);
+		var _length = array_length(self.pings);
+		if (_length < self.maxDelayUpdateRate) return;
+		var _sum = array_reduce(self.pings, function(_prev, _current) {
+			return _prev + _current;
+		});
+		self.pings = [];
+		var _average = _sum / _length;
+		var _fps = game_get_speed(gamespeed_fps);
+		var _new_delay = ceil((_average / 1000) * _fps);
+		self.maxDelay = _new_delay;
+	}
 	static process = function() {
 		var _length = array_length(self.frames);	
 		var _deleted = 0;
-		var _min_deleted = max(1, _length - self.owner.maxDelay);
+		var _min_deleted = max(1, _length - self.maxDelay);
 		if (_min_deleted > 1) {
 			_min_deleted = max(2, _min_deleted / 10);	
 		}

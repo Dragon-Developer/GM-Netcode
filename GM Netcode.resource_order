@@ -41,6 +41,7 @@
     {"name":"spr_blastalot_fall_shoot","order":2,"path":"sprites/spr_blastalot_fall_shoot/spr_blastalot_fall_shoot.yy",},
     {"name":"Manager","order":1,"path":"scripts/Manager/Manager.yy",},
     {"name":"TCPSocket","order":1,"path":"scripts/TCPSocket/TCPSocket.yy",},
+    {"name":"obj_lobby","order":3,"path":"objects/obj_lobby/obj_lobby.yy",},
     {"name":"spr_clouds","order":1,"path":"sprites/spr_clouds/spr_clouds.yy",},
     {"name":"NetworkInstance","order":6,"path":"scripts/NetworkInstance/NetworkInstance.yy",},
     {"name":"spr_blastalot_run_shoot","order":3,"path":"sprites/spr_blastalot_run_shoot/spr_blastalot_run_shoot.yy",},

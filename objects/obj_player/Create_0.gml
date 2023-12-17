@@ -33,7 +33,7 @@ typePrefix = {
 initSprites("blastalot", spriteSettings);
 
 // Variables
-spd = 2;
+spd = 1.5;
 hspd = 0;
 vspd = 0;
 vspdMax = 10;

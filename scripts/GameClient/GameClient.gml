@@ -40,6 +40,12 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 			instance_destroy(_inst);
 		}
 	});
+	pubsub.createTopic("ping_update").subscribe(0, function(_id, _message) {
+		if (!started) return;
+		var _player_id = _message.id;
+		if (playerID == _player_id) return;
+		netSync.addPing(_player_id, max(ping, _message.ping));
+	});
 	rpc.registerHandler("room_send", function(_params) {
 		var _type = _params.type;
 		if (_type == "frame_advance") {
@@ -55,7 +61,7 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 				.onCallback(function(_result) {
 					var _ping = current_time - _result;
 					ping = _ping;
-					netSync.addPing(ping);
+					rpc.sendNotification("ping_update", _ping);
 				})
 				.onError(function(_error) {
 					show_debug_message($"Error {_error.code}: {_error.message}");	

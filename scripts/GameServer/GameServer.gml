@@ -1,5 +1,5 @@
 function GameServer(_port) : TCPServer(_port) constructor {
-	game_set_speed(15, gamespeed_fps);
+	game_set_speed(60, gamespeed_fps);
 	self.createClient = function() {
 		return new Client();
 	}
@@ -7,6 +7,7 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	pubsub.createTopic("room_1");
 	// Send this data to everyone in the room (except a specific socket)
 	roomSend = function(_room, _type, _data, _ignore_socket = -1) {
+		if (_room == -1) return;
 		var _topic = $"room_{_room}";
 		if (pubsub.hasTopic(_topic)) {
 			pubsub.getTopic(_topic).publish({
@@ -30,6 +31,13 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	});
 	rpc.registerHandler("ping", function(_params, _socket) {
 		return _params;
+	});
+	rpc.registerHandler("ping_update", function(_params, _socket) {
+		var _client = getClient(_socket);
+		roomSend(_client.room, "ping_update", {
+			id: _socket,
+			ping: _params
+		}, _socket);
 	});
 	rpc.registerHandler("room_join", function(_room_id, _socket) {
 		var _topic = $"room_{_room_id}";
@@ -61,11 +69,11 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	});
 	rpc.registerHandler("room_send_all", function(_params, _socket) {
 		var _client = getClient(_socket);
-		roomSend(_client.room, _params);
+		roomSend(_client.room, "room_send", _params);
 	});
 	rpc.registerHandler("room_send_others", function(_params, _socket) {
 		var _client = getClient(_socket);
-		roomSend(_client.room, _params, _socket);
+		roomSend(_client.room, "room_send", _params, _socket);
 	});
 	rpc.registerHandler("player_state", function(_params, _socket) {
 		var _client = getClient(_socket);

@@ -89,6 +89,7 @@
     {"id":{"name":"spr_blastalot_fall_shoot","path":"sprites/spr_blastalot_fall_shoot/spr_blastalot_fall_shoot.yy",},},
     {"id":{"name":"Manager","path":"scripts/Manager/Manager.yy",},},
     {"id":{"name":"TCPSocket","path":"scripts/TCPSocket/TCPSocket.yy",},},
+    {"id":{"name":"obj_lobby","path":"objects/obj_lobby/obj_lobby.yy",},},
     {"id":{"name":"spr_clouds","path":"sprites/spr_clouds/spr_clouds.yy",},},
     {"id":{"name":"NetworkInstance","path":"scripts/NetworkInstance/NetworkInstance.yy",},},
     {"id":{"name":"spr_blastalot_run_shoot","path":"sprites/spr_blastalot_run_shoot/spr_blastalot_run_shoot.yy",},},

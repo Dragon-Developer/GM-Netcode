@@ -39,8 +39,6 @@ function Socket(_type, _ip, _port) constructor {
 		network_destroy(socket);
 		instance_destroy(clientInstance);
 	}
-	static step = function() {	}
-	static endStep = function() {  }
 }
 function SocketRAW(_type, _ip, _port) : Socket(_type, _ip, _port) constructor {
 	self.connect = function() {
