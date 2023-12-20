@@ -10,6 +10,7 @@ event_user(15);
 
 // Sprite management
 sprites = {};
+playerIndex = 0;
 spriteSettings = {
 	prefixes: {
 		normal: "",
@@ -54,7 +55,6 @@ shootDuration = 10;
 
 // Input
 input = {};
-checkInput();
 
 onCreation = true;
 
@@ -125,4 +125,40 @@ fsm
 	.add_transition("t_transition", ["idle", "run"], "fall", function() { return !onGround(); })
 	.add_transition("t_transition", "jump", "fall", function() { return (vspd >= 0); })
 	.add_transition("t_transition", "run", "idle", function() { return (input.hdir == 0); })
-	.add_transition("t_transition", "fall", "idle", function() { return onGround(); })
+	.add_transition("t_transition", "fall", "idle", function() { return onGround(); });
+	
+step = function() {
+	checkInput();
+	fsm.step();
+	fsm.trigger("t_transition");
+	if (abs(input.hdir)) fsm.trigger("t_run");
+	if (input.jump) fsm.trigger("t_jump");
+	x = clamp(x, 8, room_width - 8);
+
+	if (input.attack) {
+		shootTimer = 0;
+		shooting = true;
+		shootProjectile(obj_shot_lockstep);
+		animationType = "shoot";
+	}
+
+	if (shooting) {
+		shootTimer++;
+		if (shootTimer >= shootDuration) {
+			shootTimer = 0;
+			shooting = false;
+			animationType = "normal";
+		}
+	}
+	animationUpdateType();
+
+	sendTimer--;
+	if (sendTimer <= 0) {
+		sendTimer = sendTimerInterval;
+		net.step();
+	}
+	if (bbox_top >= room_height) {
+		x = xstart;
+		y = ystart;
+	}	
+}

@@ -5,6 +5,8 @@ function GameServer(_port) : TCPServer(_port) constructor {
 	}
 	pubsub = new PubSub();
 	pubsub.createTopic("room_1");
+	rooms = {};
+	rooms[$ "1"] = [];
 	// Send this data to everyone in the room (except a specific socket)
 	roomSend = function(_room, _type, _data, _ignore_socket = -1) {
 		if (_room == -1) return;
@@ -48,12 +50,12 @@ function GameServer(_port) : TCPServer(_port) constructor {
 		});
 		var _client = getClient(_socket);
 		_client.room = _room_id;
-		return {
+		array_push(rooms[$ _client.room], {
 			id: _socket,
-			pos: {
-				x: irandom_range(16, 304),
-				y: irandom(120)
-			}
+			confirmed: false
+		});
+		return {
+			id: _socket
 		};
 	});
 	rpc.registerHandler("room_leave", function(_params, _socket) {
@@ -75,19 +77,28 @@ function GameServer(_port) : TCPServer(_port) constructor {
 		var _client = getClient(_socket);
 		roomSend(_client.room, "room_send", _params, _socket);
 	});
-	rpc.registerHandler("player_state", function(_params, _socket) {
+	rpc.registerHandler("instance_full", function(_params, _socket) {
 		var _client = getClient(_socket);
-		roomSend(_client.room, "player_state", {
+		roomSend(_client.room, "instance_full", {
 			id: _socket,
 			state: _params.state,
+			object: _params.object,
+			instance: _params.instance
 		}, _socket);
 	});
-	rpc.registerHandler("instance_state", function(_params, _socket) {
+	rpc.registerHandler("instance_destroy", function(_params, _socket) {
+		var _client = getClient(_socket);
+		roomSend(_client.room, "instance_destroy", {
+			id: _socket,
+			instance: _params.instance
+		}, _socket);
+	});
+	rpc.registerHandler("instance_update", function(_params, _socket) {
 		var _client = getClient(_socket);
 		roomSend(_client.room, "instance_state", {
 			id: _socket,
 			state: _params.state,
-			object: _params.object
+			instance: _params.instance
 		}, _socket);
 	});
 	rpc.registerHandler("frame_advance", function(_params, _socket) {
@@ -95,6 +106,31 @@ function GameServer(_port) : TCPServer(_port) constructor {
 		roomSend(_client.room, "frame_advance", {
 			id: _socket
 		}, _socket);
+	});
+	rpc.registerHandler("player_input", function(_params, _socket) {
+		var _client = getClient(_socket);
+		roomSend(_client.room, "player_input", {
+			id: _socket,
+			frame: _params.frame,
+			input: _params.input
+		}, _socket);
+	});
+	rpc.registerHandler("start_game", function(_params, _socket) {
+		var _client = getClient(_socket);
+		var _room = rooms[$ _client.room ];
+		socketCheck = _socket;
+		var _player_index = array_find_index(_room, function(_player) {
+			return _player.id == socketCheck;
+		});
+		var _player = _room[_player_index];
+		_player.confirmed = true;
+		var _all_confirmed = array_find_index(_room, function(_player) {
+			return !_player.confirmed;
+		}) == -1;
+		if (!_all_confirmed) return;
+		roomSend(_client.room, "start_game", {
+			players: _room
+		});
 	});
 	setEvent("step", function() {
 		if (keyboard_check_pressed(ord("C"))) {

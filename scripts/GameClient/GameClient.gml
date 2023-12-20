@@ -1,51 +1,36 @@
 function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 	ping = 0;
 	started = false;
-	playerInstances = new Manager();
 	pubsub = new PubSub();
 	netSync = new NetworkSync(pubsub);
 	spawner = new NetworkSpawner();
 	spawner.addObject("obj_shot");
+	spawner.addObject("obj_player");
 	playerID = -1;
 	maxDelay = 1;
 	setEvent("error", function(err) {
 		show_debug_message(err);
 	});
-	pubsub.createTopic("player_state").subscribe(0, function(_id, _message) {
-		if (!started) return;
-		var _player_id = _message.id;
-		var _state = _message.state;
-		var _player_inst = playerInstances.getElement(_player_id);
-		if (is_undefined(_player_inst) || !instance_exists(_player_inst)) {		
-			_player_inst = instance_create_depth(0, 0, 0, obj_player);
-			playerInstances.setElement(_player_id, _player_inst);		
-		}
-		_player_inst.net.applyState(_state);
-	});
-	pubsub.createTopic("instance_state").subscribe(0, function(_id, _message) {
+	pubsub.createTopic("instance_full").subscribe(0, function(_id, _message) {
 		if (!started) return;
 		var _state = _message.state;
-		var _object_name = _message.object;
-		var _object = spawner.getObject(_object_name);
-		var _inst = spawner.createInstance(_object);
-		_inst.net.applyState(_state);
+		var _object = _message.object;
+		var _instance_id = _message.instance;
+		var _inst = spawner.getOrCreate(_instance_id, _object);
+		_inst.net.applyUpdate(_state);
 	});
-	pubsub.createTopic("player_left").subscribe(0, function(_id, _message) {
+	pubsub.createTopic("instance_destroy").subscribe(0, function(_id, _message) {
 		if (!started) return;
-		var _player_id = _message.id;
-		if (_player_id == playerID) return;
-		if (playerInstances.hasElement(_player_id)) {
-			var _inst = playerInstances.getElement(_player_id);
-			playerInstances.removeElement(_player_id);
-			instance_destroy(_inst);
-		}
+		var _instance_id = _message.instance;
+		spawner.remove(_instance_id);
 	});
 	pubsub.createTopic("ping_update").subscribe(0, function(_id, _message) {
 		if (!started) return;
 		var _player_id = _message.id;
-		if (playerID == _player_id) return;
-		netSync.addPing(_player_id, max(ping, _message.ping));
+		var _ping = _message.ping;
+		netSync.addPing(_player_id, max(ping, _ping));
 	});
+	
 	rpc.registerHandler("room_send", function(_params) {
 		var _type = _params.type;
 		if (_type == "frame_advance") {
@@ -83,11 +68,11 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 					if (started) return;
 					started = true;
 					playerID = _result.id;
+					spawner.entityManager.setPrefix(string(playerID));
 					playerPos = _result.pos;
 					change_room(rm_game, function() {
-						player = instance_create_depth(playerPos.x, playerPos.y, 0, obj_player);
-						player.initMe(true);
-						playerInstances.setElement(playerID, player);
+						player = spawner.createInstance(obj_player);
+						player.initMe();
 						show_debug_message("Joined room");		
 					});
 				})
@@ -99,10 +84,12 @@ function GameClient(_ip, _port) : TCPSocket(_ip, _port) constructor {
 			rpc.sendRequest("room_leave", [])
 				.onCallback(function() {
 					started = false;
+					/*
 					playerInstances.forEach(function(_id, _inst) {
 						instance_destroy(_inst);
 					});
 					playerInstances.clearAll();
+					*/
 					room_goto(rm_lobby);
 					show_debug_message("Left room");	
 				})

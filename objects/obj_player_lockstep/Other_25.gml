@@ -1,5 +1,7 @@
-initMe = function() {
-	net.isLocal = true;
+init = function(_id) {
+	playerIndex = _id;
+	if (global.game.playerIndex != playerIndex) return;
+	isMe = true;
 	if (!is_undefined(global.camera)) {
 		global.camera.target = id;
 	}
@@ -41,11 +43,11 @@ animationUpdateType = function() {
 }
 
 checkInput = function() {
+	var _input = global.game.getInput(playerIndex);
 	with (input) {
-		hdir	= max(keyboard_check(ord("D")), keyboard_check(vk_right)) -
-				  max(keyboard_check(ord("A")), keyboard_check(vk_left));
-		jump	= max(keyboard_check_pressed(ord("W")), keyboard_check_pressed(vk_up));
-		attack	= max(keyboard_check_pressed(ord("Z")));
+		hdir	= _input.right - _input.left;
+		jump	= _input.up;
+		attack	= _input.attack;
 	}
 };
 
@@ -77,10 +79,7 @@ moveAndCollide = function() {
 };
 
 shootProjectile = function(_object) {
-	var _inst = global.client.spawner.createInstance(_object);
-	_inst.x = x;
-	_inst.y = y;
-	_inst.depth = depth - 10;
+	var _inst = global.game.instances.createDepth(x, y, depth - 10, _object);
 	_inst.image_xscale = face;
-	_inst.speed = face * 6;
+	_inst.hspd = face * 6;
 }

@@ -1,4 +1,4 @@
-if (!isMe) {
+if (!net.isLocal) {
 	return;
 }
 checkInput();
@@ -29,7 +29,7 @@ animationUpdateType();
 sendTimer--;
 if (sendTimer <= 0) {
 	sendTimer = sendTimerInterval;
-	net.sendUpdate("player_state");
+	net.step();
 }
 if (bbox_top >= room_height) {
 	x = xstart;

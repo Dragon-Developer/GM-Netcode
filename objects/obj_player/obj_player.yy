@@ -14,7 +14,10 @@
     "name": "Scenery",
     "path": "folders/Objects/Scenery.yy",
   },
-  "parentObjectId": null,
+  "parentObjectId": {
+    "name": "par_network_instance",
+    "path": "objects/par_network_instance/par_network_instance.yy",
+  },
   "persistent": false,
   "physicsAngularDamping": 0.1,
   "physicsDensity": 0.5,
