@@ -45,9 +45,11 @@ animationUpdateType = function() {
 checkInput = function() {
 	var _input = global.game.getInput(playerIndex);
 	with (input) {
+		self[$ "attack"] ??= false;
+		attackPressed = !attack && _input.attack
 		hdir	= _input.right - _input.left;
 		jump	= _input.up;
-		attack	= _input.attack;
+		attack	= _input.attack
 	}
 };
 

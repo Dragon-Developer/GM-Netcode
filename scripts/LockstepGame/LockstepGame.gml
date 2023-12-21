@@ -2,9 +2,12 @@ function LockstepGame() constructor {
 	self.instances = new LockstepInstanceManager()
 	self.inputs = new LockstepInputManager();
 	self.currentFrame = 0;
+	self.lastInputFrame = -1;
 	self.playerIndex = 0;
+	self.maxInputDelay = 3;
 	self.sendInput = function(_frame, _input) {};
 	self.running = false;
+	self.started = false;
 	static getLocalInput = function() {
 		return {
 			left: keyboard_check(vk_left),
@@ -15,28 +18,32 @@ function LockstepGame() constructor {
 		};
 	}
 	static addLocalInput = function() {
+		if (self.lastInputFrame - self.currentFrame >= self.maxInputDelay) return;
+		self.lastInputFrame++;
 		var _input = self.getLocalInput();
-		self.inputs.addInput(self.currentFrame, self.playerIndex, _input);
-		self.sendInput(self.currentFrame, _input);
+		self.inputs.addInput(self.lastInputFrame, self.playerIndex, _input);
+		self.sendInput(self.lastInputFrame, _input);
 	}
 	static getInput = function(_player_index) {
 		return self.inputs.getInput(self.currentFrame, _player_index);	
 	}
 	static start = function() {
+		self.started = true;
 		self.addLocalInput();
 	}
-	static step = function() {
-		if (!self.inputs.canContinue(self.currentFrame - self.inputs.maxFrames)) {
-			self.running = false;
-		}
-		if (self.inputs.canContinue(self.currentFrame)) {
-			self.running = true;	
-		}
+	static runCurrentFrame = function() {
 		if (!self.running) return;
 		self.instances.beginStep();
 		self.instances.step();
 		self.instances.endStep();
+		self.inputs.removeFrame(self.currentFrame);
 		self.currentFrame++;
+	}
+	static step = function() {
+		if (!started) return;
+		self.running = (self.running && self.inputs.canContinue(self.currentFrame))
+					|| (self.inputs.canContinue(self.lastInputFrame));
+		self.runCurrentFrame();
 		self.addLocalInput();
 	}
 }

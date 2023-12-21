@@ -135,7 +135,7 @@ step = function() {
 	if (input.jump) fsm.trigger("t_jump");
 	x = clamp(x, 8, room_width - 8);
 
-	if (input.attack) {
+	if (input.attackPressed) {
 		shootTimer = 0;
 		shooting = true;
 		shootProjectile(obj_shot_lockstep);

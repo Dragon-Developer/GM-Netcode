@@ -1,11 +1,13 @@
 {
   "FolderOrderSettings": [
     {"name":"MultiClient","order":1,"path":"folders/MultiClient.yy",},
+    {"name":"Lockstep Example","order":10,"path":"folders/Objects/Lockstep Example.yy",},
     {"name":"Scenery","order":8,"path":"folders/Objects/Scenery.yy",},
     {"name":"Status","order":6,"path":"folders/Objects/Status.yy",},
     {"name":"Game","order":4,"path":"folders/Scripts/Game.yy",},
     {"name":"Netcode","order":2,"path":"folders/Scripts/Netcode.yy",},
     {"name":"Classes","order":3,"path":"folders/Scripts/Netcode/Classes.yy",},
+    {"name":"Lockstep","order":7,"path":"folders/Scripts/Netcode/Lockstep.yy",},
     {"name":"Protocol","order":6,"path":"folders/Scripts/Netcode/Protocol.yy",},
     {"name":"WebSocket","order":1,"path":"folders/Scripts/Netcode/Protocol/WebSocket.yy",},
     {"name":"RPC","order":2,"path":"folders/Scripts/Netcode/RPC.yy",},
@@ -16,9 +18,6 @@
     {"name":"Blastalot","order":2,"path":"folders/Sprites/Blastalot.yy",},
     {"name":"Normal","order":4,"path":"folders/Sprites/Blastalot/Normal.yy",},
     {"name":"Shooting","order":5,"path":"folders/Sprites/Blastalot/Shooting.yy",},
-    {"name":"Lockstep","order":7,"path":"folders/Scripts/Netcode/Lockstep.yy",},
-    {"name":"Lockstep Example","order":10,"path":"folders/Objects/Lockstep Example.yy",},
-    {"name":"Lockstep","order":5,"path":"folders/Scripts/Lockstep.yy",},
   ],
   "ResourceOrderSettings": [
     {"name":"spr_blastalot_jump","order":1,"path":"sprites/spr_blastalot_jump/spr_blastalot_jump.yy",},
